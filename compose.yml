@@ -1,6 +1,6 @@
 version: "3"
 
-# optional ports are specified throughout for more advanced use cases.
+# Optional ports are specified throughout for more advanced use cases.
 
 services:
   app-service:
