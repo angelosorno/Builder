@@ -1,6 +1,6 @@
-# 🚀 Despliegue de Aplicación con Docker Compose
+# 🌉 Bridge SH Docker Deploy
 
-¡Bienvenido! Este repositorio te permitirá desplegar tu aplicación utilizando **Docker Compose** de manera rápida y sencilla. 🌟
+¡Bienvenido! Este repositorio te permitirá desplegar **Bridge**, tu aplicación de gestión de datos, utilizando **Docker Compose** de manera rápida y sencilla. 🌟
 
 ## 🛠️ Requisitos
 
@@ -29,12 +29,12 @@ Antes de comenzar, asegúrate de tener lo siguiente instalado en tu sistema:
 4. **Ejecuta el script de inicio** para verificar y arrancar el despliegue:
 
     ```bash
-    ./Start.sh
+    ./.Start.sh
     ```
 
     ⚠️ **IMPORTANTE:** El script te preguntará si has configurado correctamente los valores en el archivo `.env`. ¡Asegúrate de revisarlos antes de continuar! ✅
 
-5. **Disfruta** de tu aplicación en funcionamiento. 🎉
+5. **Disfruta** de **Bridge** en funcionamiento. 🎉
 
 ## 🚨 Notas Importantes
 
@@ -58,6 +58,7 @@ Antes de comenzar, asegúrate de tener lo siguiente instalado en tu sistema:
 ## 📄 Licencia
 
 Este proyecto está bajo la licencia **MIT**. Consulta el archivo `LICENSE` para más detalles.
+
 ---
 
-✨ **Gracias por usar este repositorio!** ✨
+✨ **Gracias por usar Bridge!** ✨
