@@ -16,6 +16,26 @@ if [[ $confirm == "s" || $confirm == "S" ]]; then
     echo "Iniciando Docker Compose..."
     docker-compose up -d
 else
-    echo "Por favor, configura el archivo .env antes de iniciar Docker Compose."
-    exit 1
+    echo "Es necesario editar el archivo .env antes de continuar."
+
+    # Verificar si 'nano' está instalado
+    if ! command -v nano &> /dev/null; then
+        echo "El editor 'nano' no está instalado. Instalando 'nano'..."
+        
+        # Instalar 'nano' según el sistema operativo (esto asume un sistema basado en Debian/Ubuntu)
+        sudo apt-get update
+        sudo apt-get install nano -y
+    fi
+
+    # Preguntar al usuario si desea editar el archivo .env con nano
+    read -p "¿Quieres editar el archivo .env ahora con nano? (s/n): " edit_now
+
+    if [[ $edit_now == "s" || $edit_now == "S" ]]; then
+        echo "Abriendo el archivo .env con nano para su edición..."
+        nano .env
+        echo "Edición completada. Por favor, vuelve a ejecutar el script después de guardar los cambios."
+    else
+        echo "Es necesario editar el archivo .env para continuar. Por favor, edítalo manualmente y luego vuelve a ejecutar este script."
+        exit 1
+    fi
 fi
