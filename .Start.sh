@@ -10,11 +10,11 @@ else
 fi
 
 # Preguntar al usuario si ha configurado el archivo .env correctamente
-read -p "¿Has configurado los valores correctos en el archivo .env? (s/n): " confirm
+read -p "¿Has configurado los valores correctos en el archivo .env? (S/N): " confirm
 
 if [[ $confirm == "s" || $confirm == "S" ]]; then
     echo "Iniciando Docker Compose..."
-    docker-compose up -d
+    docker compose up -d
 else
     echo "Es necesario editar el archivo .env antes de continuar."
 
@@ -28,7 +28,7 @@ else
     fi
 
     # Preguntar al usuario si desea editar el archivo .env con nano
-    read -p "¿Quieres editar el archivo .env ahora con nano? (s/n): " edit_now
+    read -p "¿Quieres editar el archivo .env ahora con el editor nano? (S/N): " edit_now
 
     if [[ $edit_now == "s" || $edit_now == "S" ]]; then
         echo "Abriendo el archivo .env con nano para su edición..."
