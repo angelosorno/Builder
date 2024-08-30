@@ -14,8 +14,8 @@ Antes de comenzar, asegúrate de tener lo siguiente instalado en tu sistema:
 1. **Clona el repositorio** en tu máquina local:
 
     ```bash
-    git clone https://tu-repo.git
-    cd tu-repo
+    git clone https://github.com/angelosorno/Builder
+    cd Builder
     ```
 
 2. **Copia el archivo `.env`** desde el archivo de ejemplo:
@@ -42,13 +42,13 @@ Antes de comenzar, asegúrate de tener lo siguiente instalado en tu sistema:
 - **Docker Compose** levantará los servicios en segundo plano. Puedes verificar el estado de los contenedores con:
 
     ```bash
-    docker-compose ps
+    docker compose ps
     ```
 
 - Si deseas detener todos los servicios, ejecuta:
 
     ```bash
-    docker-compose down
+    docker compose down
     ```
 
 ## 🧑‍💻 Contribuciones
@@ -58,8 +58,6 @@ Antes de comenzar, asegúrate de tener lo siguiente instalado en tu sistema:
 ## 📄 Licencia
 
 Este proyecto está bajo la licencia **MIT**. Consulta el archivo `LICENSE` para más detalles.
-
 ---
 
 ✨ **Gracias por usar este repositorio!** ✨
-
