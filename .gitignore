@@ -1,6 +1,7 @@
+# Variables
 .env
 
-
+# Folders
 data
-
+DockerVaultBackup
 volumes_backup
