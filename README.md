@@ -45,7 +45,7 @@ Antes de comenzar, asegúrate de tener lo siguiente instalado en tu sistema:
 5. **Ejecuta el script de inicio** para verificar y arrancar el despliegue:
 
     ```bash
-    ./Start.sh
+    ./.Start.sh
     ```
 
     ⚠️ **IMPORTANTE:** El script te preguntará si has configurado correctamente los valores en el archivo `.env`. ¡Asegúrate de revisarlos antes de continuar! ✅
