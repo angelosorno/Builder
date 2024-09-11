@@ -10,7 +10,7 @@ fi
 COMPOSE_FILE="compose.yml"
 
 # Extraer los nombres de los volúmenes definidos en el archivo compose.yml
-VOLUMES=$(docker-compose -f $COMPOSE_FILE config --volumes)
+VOLUMES=$(docker compose -f $COMPOSE_FILE config --volumes)
 
 # Verificar si hay volúmenes listados
 if [ -z "$VOLUMES" ]; then
