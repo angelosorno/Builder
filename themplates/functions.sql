@@ -26,7 +26,7 @@ BEGIN
     SET year_compra = YEAR(fecha_compra);
 
     -- Obtener el valor del SMLV para el año correspondiente
-    SELECT valor_smlv INTO smlv_year FROM uvt_smlv WHERE year = year_compra;
+    SELECT valor_smlv INTO smlv_year FROM uvts WHERE year = year_compra;
 
     -- Clasificar el activo
     IF valor_compra >= (smlv_year * 10) THEN
@@ -45,7 +45,7 @@ CREATE TRIGGER clasificar_activo_insert
 BEFORE INSERT ON act_inventarios_fijos
 FOR EACH ROW
     SET NEW.clasificacion = IF(
-        NEW.valor_compra >= ((SELECT valor_smlv FROM uvt_smlv WHERE year = YEAR(NEW.fecha_compra)) * 10),
+        NEW.valor_compra >= ((SELECT valor_smlv FROM uvts WHERE year = YEAR(NEW.fecha_compra)) * 10),
         'Activo Fijo',
         'Elemento de Control'
     );
@@ -55,7 +55,7 @@ CREATE TRIGGER clasificar_activo_update
 BEFORE UPDATE ON act_inventarios_fijos
 FOR EACH ROW
     SET NEW.clasificacion = IF(
-        NEW.valor_compra >= ((SELECT valor_smlv FROM uvt_smlv WHERE year = YEAR(NEW.fecha_compra)) * 10),
+        NEW.valor_compra >= ((SELECT valor_smlv FROM uvts WHERE year = YEAR(NEW.fecha_compra)) * 10),
         'Activo Fijo',
         'Elemento de Control'
     );

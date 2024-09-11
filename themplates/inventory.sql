@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS act_anexos (
 );
 
 -- Tabla de áreas y líneas (asegúrate que esta tabla exista y esté correctamente definida)
-CREATE TABLE IF NOT EXISTS area_linea (
+CREATE TABLE IF NOT EXISTS estructura_organizacional (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     nombre TEXT NOT NULL
 );
@@ -94,14 +94,14 @@ CREATE TABLE IF NOT EXISTS act_inventarios_fijos (
     foto_principal_id BIGINT,
     nombre_generico TEXT,
     estado_salud ENUM('Buen estado', 'Mal estado', 'Regular') NOT NULL DEFAULT 'Buen estado',
-    area_linea_id BIGINT,
+    estructura_organizacional_id BIGINT,
     clasificacion ENUM('Activo Fijo', 'Elemento de Control') DEFAULT NULL,
     FOREIGN KEY (ubicacion_id) REFERENCES act_ubicaciones(id),
     FOREIGN KEY (responsable_id) REFERENCES terceros(id),
     FOREIGN KEY (marca_id) REFERENCES act_marcas(id),
     FOREIGN KEY (categoria_id) REFERENCES act_categorias(id),
     FOREIGN KEY (foto_principal_id) REFERENCES act_anexos(id),
-    FOREIGN KEY (area_linea_id) REFERENCES area_linea(id)
+    FOREIGN KEY (estructura_organizacional_id) REFERENCES estructura_organizacional(id)
 );
 
 
@@ -261,7 +261,7 @@ INSERT INTO act_categorias (nombre, tipo, padre_id) VALUES
 ('Equipo de Comunicación', 'Categoria', NULL);
 
 -- Crear tabla para almacenar SMLV y UVT por año
-CREATE TABLE IF NOT EXISTS uvt_smlv (
+CREATE TABLE IF NOT EXISTS uvts (
     year INT PRIMARY KEY,
     valor_smlv DECIMAL(12, 2) NOT NULL,
     valor_uvt DECIMAL(12, 2) NOT NULL
