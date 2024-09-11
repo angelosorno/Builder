@@ -21,6 +21,14 @@ CREATE TABLE IF NOT EXISTS terceros (
     informacion_contacto TEXT
 );
 
+-- Tabla de usuarios corporativos
+CREATE TABLE IF NOT EXISTS usuarios_corp (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    nombre TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Tabla de marcas con jerarquía
 CREATE TABLE IF NOT EXISTS act_marcas (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -39,12 +47,13 @@ CREATE TABLE IF NOT EXISTS act_categorias (
     FOREIGN KEY (padre_id) REFERENCES act_categorias(id)
 );
 
--- Tabla de usuarios corporativos (preexistente)
-CREATE TABLE IF NOT EXISTS usuarios_corp (
+-- Tabla de categorías para el CLA
+CREATE TABLE IF NOT EXISTS act_cla_categorias (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     nombre TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    tipo TEXT NOT NULL,
+    padre_id BIGINT,
+    FOREIGN KEY (padre_id) REFERENCES act_cla_categorias(id)
 );
 
 -- Tabla de anexos para almacenar información de archivos adjuntos
@@ -53,7 +62,16 @@ CREATE TABLE IF NOT EXISTS act_anexos (
     nombre_archivo TEXT NOT NULL,
     ruta_archivo TEXT NOT NULL,
     tipo TEXT NOT NULL,
-    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    es_fotografia BOOLEAN DEFAULT FALSE,
+    ruta_thumbnail TEXT,
+    tipo_documento ENUM('Factura', 'Garantia', 'Orden de Compra', 'Intencion de Donacion', 'Documento de Importacion', 'Fotografia') NOT NULL
+);
+
+-- Tabla de áreas y líneas (asegúrate que esta tabla exista y esté correctamente definida)
+CREATE TABLE IF NOT EXISTS area_linea (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    nombre TEXT NOT NULL
 );
 
 -- Tabla de activos fijos
@@ -72,13 +90,33 @@ CREATE TABLE IF NOT EXISTS act_inventarios_fijos (
     valor_compra DECIMAL(12, 2),
     estado ENUM('Activo', 'Depreciado', 'Eliminado', 'Devuelto', 'Baja') DEFAULT 'Activo',
     importado BOOLEAN DEFAULT FALSE,
-    usuario_id BIGINT,
-    placa TEXT UNIQUE,
+    origen VARCHAR(50) NOT NULL DEFAULT 'Compra',
+    foto_principal_id BIGINT,
+    nombre_generico TEXT,
+    estado_salud ENUM('Buen estado', 'Mal estado', 'Regular') NOT NULL DEFAULT 'Buen estado',
+    area_linea_id BIGINT,
+    clasificacion ENUM('Activo Fijo', 'Elemento de Control') DEFAULT NULL,
     FOREIGN KEY (ubicacion_id) REFERENCES act_ubicaciones(id),
     FOREIGN KEY (responsable_id) REFERENCES terceros(id),
     FOREIGN KEY (marca_id) REFERENCES act_marcas(id),
     FOREIGN KEY (categoria_id) REFERENCES act_categorias(id),
-    FOREIGN KEY (usuario_id) REFERENCES usuarios_corp(id)
+    FOREIGN KEY (foto_principal_id) REFERENCES act_anexos(id),
+    FOREIGN KEY (area_linea_id) REFERENCES area_linea(id)
+);
+
+
+-- Crear tabla de asignación de activos a trabajadores (terceros)
+CREATE TABLE IF NOT EXISTS act_asignaciones (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    activo_id BIGINT NOT NULL,
+    tercero_id BIGINT NOT NULL,
+    fecha_asignacion DATE NOT NULL,
+    fecha_devolucion DATE,
+    estado_entrega ENUM('Entrega incompleta', 'Entrega con avería', 'Entrega sin asepcia', 'Mantenimiento', 'Novedad', 'Dado de baja') DEFAULT 'Entrega incompleta',
+    codigo_acta TEXT,
+    observaciones TEXT,
+    FOREIGN KEY (activo_id) REFERENCES act_inventarios_fijos(id),
+    FOREIGN KEY (tercero_id) REFERENCES terceros(id)
 );
 
 -- Tabla de relación muchos a muchos entre activos y anexos
@@ -90,7 +128,7 @@ CREATE TABLE IF NOT EXISTS act_inventario_anexos (
     FOREIGN KEY (id_anexo) REFERENCES act_anexos(id)
 );
 
--- Tabla de inventarios rotativos (CLA) con auditoría y estados
+-- Crear tabla de categorías para el CLA y modificar la tabla de inventarios CLA
 CREATE TABLE IF NOT EXISTS act_cla_inventarios (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     nombre TEXT NOT NULL,
@@ -101,24 +139,28 @@ CREATE TABLE IF NOT EXISTS act_cla_inventarios (
     prestado BOOLEAN DEFAULT FALSE,
     es_prestable BOOLEAN DEFAULT FALSE,
     marca_id BIGINT,
-    categoria_id BIGINT,
+    cla_categoria_id BIGINT,
     estado ENUM('Disponible', 'En Uso', 'Dañado') DEFAULT 'Disponible',
     usuario_id BIGINT,
+    nombre_generico TEXT,
     FOREIGN KEY (ubicacion_id) REFERENCES act_ubicaciones(id),
     FOREIGN KEY (marca_id) REFERENCES act_marcas(id),
-    FOREIGN KEY (categoria_id) REFERENCES act_categorias(id),
+    FOREIGN KEY (cla_categoria_id) REFERENCES act_cla_categorias(id),
     FOREIGN KEY (usuario_id) REFERENCES usuarios_corp(id)
 );
 
 -- Tabla de historial de préstamos de activos
 CREATE TABLE IF NOT EXISTS act_historial_prestamos (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    id_activo BIGINT,
-    nombre_prestatario TEXT NOT NULL,
-    fecha_prestamo DATE,
+    activo_id BIGINT NOT NULL,
+    tercero_id BIGINT NOT NULL,
+    fecha_prestamo DATE NOT NULL,
     fecha_devolucion DATE,
-    observacion TEXT,
-    FOREIGN KEY (id_activo) REFERENCES act_inventarios_fijos(id)
+    destino TEXT,
+    estado_prestamo ENUM('Prestado', 'Devuelto', 'Perdido', 'Dañado') DEFAULT 'Prestado',
+    observaciones TEXT,
+    FOREIGN KEY (activo_id) REFERENCES act_inventarios_fijos(id),
+    FOREIGN KEY (tercero_id) REFERENCES terceros(id)
 );
 
 -- Tabla de conjuntos de activos
@@ -182,23 +224,45 @@ CREATE TABLE IF NOT EXISTS act_auditoria_cambios (
     datos_nuevos TEXT
 );
 
--- Función de auditoría para inventarios rotativos (CLA)
-DELIMITER $$
+-- Tabla de proveedores de mantenimiento
+CREATE TABLE IF NOT EXISTS proveedores (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    nombre TEXT NOT NULL,
+    contacto TEXT,
+    direccion TEXT
+);
 
-CREATE TRIGGER act_auditar_cambios_cla
-AFTER UPDATE ON act_cla_inventarios
-FOR EACH ROW
-BEGIN
-    INSERT INTO act_auditoria_cambios (tabla, operacion, registro_id, usuario_id, datos_anteriores, datos_nuevos)
-    VALUES ('act_cla_inventarios', 'UPDATE', OLD.id, NEW.usuario_id, OLD.nombre, NEW.nombre);
-END$$
+-- Tabla de mantenimientos para activos
+CREATE TABLE IF NOT EXISTS act_mantenimientos (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    activo_id BIGINT NOT NULL,
+    proveedor_id BIGINT NOT NULL,
+    fecha_ultimo_mantenimiento DATE NOT NULL,
+    fecha_siguiente_mantenimiento DATE,
+    observaciones TEXT,
+    FOREIGN KEY (activo_id) REFERENCES act_inventarios_fijos(id),
+    FOREIGN KEY (proveedor_id) REFERENCES proveedores(id)
+);
 
-CREATE TRIGGER act_auditar_borrado_cla
-AFTER DELETE ON act_cla_inventarios
-FOR EACH ROW
-BEGIN
-    INSERT INTO act_auditoria_cambios (tabla, operacion, registro_id, usuario_id, datos_anteriores, datos_nuevos)
-    VALUES ('act_cla_inventarios', 'DELETE', OLD.id, OLD.usuario_id, OLD.nombre, NULL);
-END$$
+-- Crear tabla para almacenar los accesorios de los activos
+CREATE TABLE IF NOT EXISTS act_accesorios (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    activo_id BIGINT,
+    nombre_accesorio TEXT NOT NULL,
+    FOREIGN KEY (activo_id) REFERENCES act_inventarios_fijos(id)
+);
 
-DELIMITER ;
+-- Insertar las categorías base en la tabla act_categorias
+INSERT INTO act_categorias (nombre, tipo, padre_id) VALUES
+('Muebles y Enseres', 'Categoria', NULL),
+('Equipo de Computo', 'Categoria', NULL),
+('Maquinaria y Equipo', 'Categoria', NULL),
+('Vehículos', 'Categoria', NULL),
+('Equipo de Comunicación', 'Categoria', NULL);
+
+-- Crear tabla para almacenar SMLV y UVT por año
+CREATE TABLE IF NOT EXISTS uvt_smlv (
+    year INT PRIMARY KEY,
+    valor_smlv DECIMAL(12, 2) NOT NULL,
+    valor_uvt DECIMAL(12, 2) NOT NULL
+);
