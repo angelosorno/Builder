@@ -2,7 +2,7 @@
 
 ¡Bienvenido! Este repositorio te permitirá desplegar **Bridge**, una aplicación de gestión de datos construida con [Budibase](https://budibase.com/), utilizando **Docker Compose** de manera rápida y sencilla. 🌟
 
-## 📝 Que puedes hacer con Budibase
+## 📝 Qué puedes hacer con Budibase
 
 **Bridge** es una poderosa herramienta para la gestión y automatización de procesos internos en tu organización. Con **Bridge**, puedes:
 
@@ -28,27 +28,27 @@ Antes de comenzar, asegúrate de tener lo siguiente instalado en tu sistema:
     cd Builder
     ```
 
-2. **Copia el archivo `.env`** desde el archivo de ejemplo:
-
-    ```bash
-    cp example.env .env
-    ```
-
-3. **Edita el archivo `.env`** con los valores correctos. 📝
-
-4. **Otorga permisos de ejecución** al script `.Start.sh`:
+2. **Otorga permisos de ejecución** al script `.Start.sh`:
 
     ```bash
     chmod +x .Start.sh
     ```
 
-5. **Ejecuta el script de inicio** para verificar y arrancar el despliegue:
+3. **Ejecuta el script de inicio** para copiar el archivo `.env` desde el archivo de ejemplo y generar contraseñas aleatorias automáticamente:
 
     ```bash
     ./.Start.sh
     ```
 
-    ⚠️ **IMPORTANTE:** El script te preguntará si has configurado correctamente los valores en el archivo `.env`. ¡Asegúrate de revisarlos antes de continuar! ✅
+    ⚠️ **IMPORTANTE:** El script creará una copia de `example.env` como `.env` y generará automáticamente nuevas contraseñas aleatorias en el archivo `.env`. Luego, te preguntará si has configurado correctamente los valores en el archivo `.env`. ¡Asegúrate de revisarlos antes de continuar! ✅
+
+4. **Edita el archivo `.env** si es necesario. El script te permitirá hacerlo antes de proceder con el despliegue de Docker Compose. 📝
+
+5. **Inicia Docker Compose** desde el mismo script:
+
+    ```bash
+    docker compose up -d
+    ```
 
 6. **Disfruta** de **Bridge** en funcionamiento. 🎉
 

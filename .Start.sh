@@ -5,6 +5,11 @@ if [ ! -f .env ]; then
     echo "El archivo .env no existe. Creando una copia de example.env como .env..."
     cp example.env .env
     echo "El archivo .env ha sido creado."
+
+    # Ejecutar el script .RandomENV.sh para modificar el archivo .env con claves aleatorias
+    echo "Ejecutando .RandomENV.sh para generar nuevas contraseñas..."
+    ./.RandomENV.sh
+
 else
     echo "El archivo .env ya existe."
 fi
