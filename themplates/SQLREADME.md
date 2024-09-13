@@ -20,7 +20,7 @@ Este repositorio contiene los scripts SQL necesarios para la creación y configu
     - [3. usuarios\_corp](#3-usuarios_corp)
     - [4. act\_marcas](#4-act_marcas)
     - [5. act\_categorias](#5-act_categorias)
-    - [6. act\_inventarios\_fijos](#6-act_inventarios_fijos)
+    - [6. act\_activosfijos](#6-act_activosfijos)
     - [7. act\_historial\_prestamos](#7-act_historial_prestamos)
     - [8. estructura\_organizacional](#8-estructura_organizacional)
     - [Otras Tablas](#otras-tablas)
@@ -127,7 +127,7 @@ Define categorías de activos, con la posibilidad de crear relaciones jerárquic
 - `nombre`: Nombre de la categoría.
 - `padre_id`: Referencia a otra categoría, permitiendo jerarquías.
 
-### 6. act_inventarios_fijos
+### 6. act_activosfijos
 Tabla central del inventario que almacena los activos fijos y sus características. Incluye referencias a la ubicación, responsable, marca, categoría, entre otros.
 
 **Campos principales:**
@@ -160,7 +160,7 @@ Esta tabla reemplaza a la anterior `area_linea` y define la estructura organizac
 - `act_cla_inventarios`: Gestiona el inventario de activos del CLA, con categorías especializadas.
 - `act_auditoria_cambios`: Registra todos los cambios en los activos, con detalles sobre la operación realizada, el usuario que la realizó y los datos anteriores/nuevos.
 - `act_productos`: Almacena productos que se manejan en bodega, con auditoría de movimientos de inventario.
-- `proveedores`: Almacena los proveedores de mantenimiento asociados a los activos.
+- `tercero_juridico`: Almacena los proveedores de mantenimiento asociados a los activos.
 - `act_mantenimientos`: Registra las actividades de mantenimiento de los activos, incluyendo fechas y observaciones.
 
 ## Vistas y Funciones Incluidas

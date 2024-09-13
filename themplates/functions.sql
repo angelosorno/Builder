@@ -1,5 +1,5 @@
 -- Seleccionar la base de datos
-USE inventory;
+USE appminub_colombia;
 
 -- Drop triggers and function if they exist
 DROP TRIGGER IF EXISTS clasificar_activo_insert;
@@ -42,7 +42,7 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE TRIGGER clasificar_activo_insert
-BEFORE INSERT ON act_inventarios_fijos
+BEFORE INSERT ON act_activosfijos
 FOR EACH ROW
     SET NEW.clasificacion = IF(
         NEW.valor_compra >= ((SELECT valor_smlv FROM uvts WHERE year = YEAR(NEW.fecha_compra)) * 10),
@@ -52,7 +52,7 @@ FOR EACH ROW
 $$
 
 CREATE TRIGGER clasificar_activo_update
-BEFORE UPDATE ON act_inventarios_fijos
+BEFORE UPDATE ON act_activosfijos
 FOR EACH ROW
     SET NEW.clasificacion = IF(
         NEW.valor_compra >= ((SELECT valor_smlv FROM uvts WHERE year = YEAR(NEW.fecha_compra)) * 10),
@@ -92,7 +92,7 @@ AFTER INSERT ON act_historial_prestamos
 FOR EACH ROW
 BEGIN
     IF NEW.estado_prestamo = 'Prestado' THEN
-        UPDATE act_inventarios_fijos
+        UPDATE act_activosfijos
         SET prestado = TRUE
         WHERE id = NEW.activo_id;
     END IF;
@@ -106,7 +106,7 @@ AFTER UPDATE ON act_historial_prestamos
 FOR EACH ROW
 BEGIN
     IF NEW.fecha_devolucion IS NOT NULL AND NEW.estado_prestamo = 'Devuelto' THEN
-        UPDATE act_inventarios_fijos
+        UPDATE act_activosfijos
         SET prestado = FALSE
         WHERE id = NEW.activo_id;
     END IF;
@@ -120,7 +120,7 @@ BEFORE INSERT ON act_historial_prestamos
 FOR EACH ROW
 BEGIN
     DECLARE activo_prestado BOOLEAN;
-    SELECT prestado INTO activo_prestado FROM act_inventarios_fijos WHERE id = NEW.activo_id;
+    SELECT prestado INTO activo_prestado FROM act_activosfijos WHERE id = NEW.activo_id;
     IF activo_prestado = TRUE THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El activo ya está prestado y no puede ser prestado nuevamente.';
     END IF;
@@ -130,14 +130,14 @@ DELIMITER $$
 
 -- Consulta para obtener activos que no están asignados a ningún usuario
 SELECT a.id, a.nombre
-FROM act_inventarios_fijos a
+FROM act_activosfijos a
 LEFT JOIN act_asignaciones asign ON a.id = asign.activo_id AND asign.fecha_devolucion IS NULL
 WHERE asign.id IS NULL;
 
 -- Vista de activos prestables
 CREATE OR REPLACE VIEW activos_prestables AS
 SELECT *
-FROM act_inventarios_fijos
+FROM act_activosfijos
 WHERE es_prestable = TRUE AND prestado = FALSE;
 
 -- Vista de activos actualmente prestados
@@ -145,5 +145,5 @@ CREATE OR REPLACE VIEW activos_prestados AS
 SELECT h.*, t.nombre AS nombre_tercero, a.nombre AS nombre_activo
 FROM act_historial_prestamos h
 JOIN terceros t ON h.tercero_id = t.id
-JOIN act_inventarios_fijos a ON h.activo_id = a.id
+JOIN act_activosfijos a ON h.activo_id = a.id
 WHERE h.fecha_devolucion IS NULL AND h.estado_prestamo = 'Prestado';

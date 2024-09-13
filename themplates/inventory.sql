@@ -1,8 +1,8 @@
 -- Crear base de datos si no existe (opcional)
-CREATE DATABASE IF NOT EXISTS inventory;
+CREATE DATABASE IF NOT EXISTS appminub_colombia;
 
 -- Seleccionar la base de datos
-USE inventory;
+USE appminub_colombia;
 
 -- Tabla de ubicaciones con jerarquía y tipos de ubicación
 CREATE TABLE IF NOT EXISTS act_ubicaciones (
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS estructura_organizacional (
 );
 
 -- Tabla de activos fijos
-CREATE TABLE IF NOT EXISTS act_inventarios_fijos (
+CREATE TABLE IF NOT EXISTS act_activosfijos (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     nombre TEXT NOT NULL,
     descripcion TEXT,
@@ -92,10 +92,10 @@ CREATE TABLE IF NOT EXISTS act_inventarios_fijos (
     importado BOOLEAN DEFAULT FALSE,
     origen VARCHAR(50) NOT NULL DEFAULT 'Compra',
     foto_principal_id BIGINT,
-    nombre_generico TEXT,
     estado_salud ENUM('Buen estado', 'Mal estado', 'Regular') NOT NULL DEFAULT 'Buen estado',
     estructura_organizacional_id BIGINT,
     clasificacion ENUM('Activo Fijo', 'Elemento de Control') DEFAULT NULL,
+    placa VARCHAR(50) UNIQUE,
     FOREIGN KEY (ubicacion_id) REFERENCES act_ubicaciones(id),
     FOREIGN KEY (responsable_id) REFERENCES terceros(id),
     FOREIGN KEY (marca_id) REFERENCES act_marcas(id),
@@ -115,16 +115,16 @@ CREATE TABLE IF NOT EXISTS act_asignaciones (
     estado_entrega ENUM('Entrega incompleta', 'Entrega con avería', 'Entrega sin asepcia', 'Mantenimiento', 'Novedad', 'Dado de baja') DEFAULT 'Entrega incompleta',
     codigo_acta TEXT,
     observaciones TEXT,
-    FOREIGN KEY (activo_id) REFERENCES act_inventarios_fijos(id),
+    FOREIGN KEY (activo_id) REFERENCES act_activosfijos(id),
     FOREIGN KEY (tercero_id) REFERENCES terceros(id)
 );
 
 -- Tabla de relación muchos a muchos entre activos y anexos
-CREATE TABLE IF NOT EXISTS act_inventario_anexos (
+CREATE TABLE IF NOT EXISTS act_activosfijos_anexos (
     id_inventario_fijo BIGINT,
     id_anexo BIGINT,
     PRIMARY KEY (id_inventario_fijo, id_anexo),
-    FOREIGN KEY (id_inventario_fijo) REFERENCES act_inventarios_fijos(id),
+    FOREIGN KEY (id_inventario_fijo) REFERENCES act_activosfijos(id),
     FOREIGN KEY (id_anexo) REFERENCES act_anexos(id)
 );
 
@@ -142,7 +142,6 @@ CREATE TABLE IF NOT EXISTS act_cla_inventarios (
     cla_categoria_id BIGINT,
     estado ENUM('Disponible', 'En Uso', 'Dañado') DEFAULT 'Disponible',
     usuario_id BIGINT,
-    nombre_generico TEXT,
     FOREIGN KEY (ubicacion_id) REFERENCES act_ubicaciones(id),
     FOREIGN KEY (marca_id) REFERENCES act_marcas(id),
     FOREIGN KEY (cla_categoria_id) REFERENCES act_cla_categorias(id),
@@ -159,7 +158,7 @@ CREATE TABLE IF NOT EXISTS act_historial_prestamos (
     destino TEXT,
     estado_prestamo ENUM('Prestado', 'Devuelto', 'Perdido', 'Dañado') DEFAULT 'Prestado',
     observaciones TEXT,
-    FOREIGN KEY (activo_id) REFERENCES act_inventarios_fijos(id),
+    FOREIGN KEY (activo_id) REFERENCES act_activosfijos(id),
     FOREIGN KEY (tercero_id) REFERENCES terceros(id)
 );
 
@@ -177,7 +176,7 @@ CREATE TABLE IF NOT EXISTS act_conjunto_activos (
     activo_id BIGINT,
     PRIMARY KEY (conjunto_id, activo_id),
     FOREIGN KEY (conjunto_id) REFERENCES act_conjuntos(id),
-    FOREIGN KEY (activo_id) REFERENCES act_inventarios_fijos(id)
+    FOREIGN KEY (activo_id) REFERENCES act_activosfijos(id)
 );
 
 -- Tabla de productos (inventario de productos en bodega)
@@ -190,7 +189,7 @@ CREATE TABLE IF NOT EXISTS act_productos (
 );
 
 -- Tabla de inventario con auditoría de movimientos
-CREATE TABLE IF NOT EXISTS act_inventario (
+CREATE TABLE IF NOT EXISTS act_cla_inventario (
     id_inventario BIGINT PRIMARY KEY AUTO_INCREMENT,
     id_producto BIGINT NOT NULL,
     id_bodega BIGINT NOT NULL,
@@ -201,7 +200,7 @@ CREATE TABLE IF NOT EXISTS act_inventario (
 );
 
 -- Registro de movimientos de inventario (entradas y salidas)
-CREATE TABLE IF NOT EXISTS act_inventario_movimientos (
+CREATE TABLE IF NOT EXISTS act_activosfijos_movimientos (
     id_movimiento BIGINT PRIMARY KEY AUTO_INCREMENT,
     id_producto BIGINT NOT NULL,
     id_bodega BIGINT NOT NULL,
@@ -225,7 +224,7 @@ CREATE TABLE IF NOT EXISTS act_auditoria_cambios (
 );
 
 -- Tabla de proveedores de mantenimiento
-CREATE TABLE IF NOT EXISTS proveedores (
+CREATE TABLE IF NOT EXISTS tercero_juridico (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     nombre TEXT NOT NULL,
     contacto TEXT,
@@ -240,8 +239,8 @@ CREATE TABLE IF NOT EXISTS act_mantenimientos (
     fecha_ultimo_mantenimiento DATE NOT NULL,
     fecha_siguiente_mantenimiento DATE,
     observaciones TEXT,
-    FOREIGN KEY (activo_id) REFERENCES act_inventarios_fijos(id),
-    FOREIGN KEY (proveedor_id) REFERENCES proveedores(id)
+    FOREIGN KEY (activo_id) REFERENCES act_activosfijos(id),
+    FOREIGN KEY (proveedor_id) REFERENCES tercero_juridico(id)
 );
 
 -- Crear tabla para almacenar los accesorios de los activos
@@ -249,7 +248,7 @@ CREATE TABLE IF NOT EXISTS act_accesorios (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     activo_id BIGINT,
     nombre_accesorio TEXT NOT NULL,
-    FOREIGN KEY (activo_id) REFERENCES act_inventarios_fijos(id)
+    FOREIGN KEY (activo_id) REFERENCES act_activosfijos(id)
 );
 
 -- Insertar las categorías base en la tabla act_categorias
