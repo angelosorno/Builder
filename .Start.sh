@@ -1,15 +1,12 @@
 #!/bin/bash
-
 # Verificar si existe el archivo .env
 if [ ! -f .env ]; then
     echo "El archivo .env no existe. Creando una copia de example.env como .env..."
     cp example.env .env
     echo "El archivo .env ha sido creado."
-
     # Ejecutar el script .RandomENV.sh para modificar el archivo .env con claves aleatorias
     echo "Ejecutando .RandomENV.sh para generar nuevas contraseñas..."
     ./.RandomENV.sh
-
 else
     echo "El archivo .env ya existe."
 fi
@@ -22,11 +19,9 @@ if [[ $confirm == "s" || $confirm == "S" ]]; then
     docker compose up -d
 else
     echo "Es necesario editar el archivo .env antes de continuar."
-
     # Verificar si 'nano' está instalado
     if ! command -v nano &> /dev/null; then
         echo "El editor 'nano' no está instalado. Instalando 'nano'..."
-        
         # Instalar 'nano' según el sistema operativo (esto asume un sistema basado en Debian/Ubuntu)
         sudo apt-get update
         sudo apt-get install nano -y
@@ -34,7 +29,6 @@ else
 
     # Preguntar al usuario si desea editar el archivo .env con nano
     read -p "¿Quieres editar el archivo .env ahora con el editor nano? (S/N): " edit_now
-
     if [[ $edit_now == "s" || $edit_now == "S" ]]; then
         echo "Abriendo el archivo .env con nano para su edición..."
         nano .env
