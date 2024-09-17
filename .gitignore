@@ -1,13 +1,10 @@
 # Variables
 .env
-
 # Folders
 data
 DockerVaultBackup
 volumes_backup
-
 budibase
-
 # DockerVaultBackup
 BackupVolumesDocker.sh
 RestoreVolumes.sh
