@@ -77,7 +77,7 @@ services:
   proxy-service:
     restart: unless-stopped
     ports:
-      - "${MAIN_PORT}:10000"
+      - "${MAIN_PORT}:8077"
     container_name: bbproxy
     image: budibase/proxy
     environment:
